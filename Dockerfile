@@ -1,22 +1,33 @@
-FROM node:16.13.0
+FROM nikolaik/python-nodejs:latest
 
 RUN apt-get update && \
   apt-get install -y \
   neofetch \
+  chromium \
   ffmpeg \
-  wget \
   webp \
+  wget \
+  mc \
   imagemagick && \
   rm -rf /var/lib/apt/lists/*
 
 COPY package.json .
-RUN npm install -g npm@latest
 RUN npm install 
-RUN npm instal pm2 -g
-ENV PM2_PUBLIC_KEY hh73adnvlt9kan1
-ENV PM2_SECRET_KEY p0d57w4v1swtkx5
+#RUN npm install @adiwajshing/baileys@3.5.2 
+#RUN npm audit fix
+#RUN npm install -g npm-check-updates
+#RUN ncu --upgrade
+#RUN npm install libwebp
 
-COPY . .
+RUN mkdir /selfbot
+WORKDIR /selfbot
+COPY . /selfbot
+RUN python3 -m pip install -r /selfbot/requirements.txt
+ENV TZ=Asia/Jakarta
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN ls
+
 EXPOSE 5000
 
-CMD ["pm2-runtime", "main.js"]`
+CMD ["npm", "start"]
